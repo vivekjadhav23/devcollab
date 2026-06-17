@@ -130,6 +130,7 @@ export const initAIReviewQueue = (io) => {
 
     const clientOpts = {
       maxRetriesPerRequest: null,
+      enableReadyCheck: false,
     };
     if (redisUrl.startsWith('rediss://')) {
       clientOpts.tls = { rejectUnauthorized: false };

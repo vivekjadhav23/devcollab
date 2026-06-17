@@ -228,6 +228,7 @@ export const initExecutionQueue = (io) => {
 
     const clientOpts = {
       maxRetriesPerRequest: null,
+      enableReadyCheck: false,
     };
     if (redisUrl.startsWith('rediss://')) {
       clientOpts.tls = { rejectUnauthorized: false };
