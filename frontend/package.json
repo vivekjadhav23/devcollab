@@ -1,0 +1,32 @@
+{
+  "name": "devcollab-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0 --port 3000",
+    "build": "vite build",
+    "preview": "vite preview --port 3000"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@tabler/icons-react": "^3.44.0",
+    "axios": "^1.6.8",
+    "framer-motion": "^12.40.0",
+    "idb-keyval": "^6.2.5",
+    "lucide-react": "^0.368.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3",
+    "socket.io-client": "^4.7.5",
+    "y-monaco": "^0.1.6",
+    "y-protocols": "^1.0.7",
+    "yjs": "^13.6.31"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.2.0"
+  }
+}
