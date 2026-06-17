@@ -44,7 +44,13 @@ const setupMockClients = () => {
 
 export const connectRedis = () => {
   return new Promise((resolve) => {
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    let redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    
+    // Automatically enforce secure TLS (rediss://) for cloud Redis hosts (e.g. Upstash)
+    if (redisUrl.startsWith('redis://') && !redisUrl.includes('localhost') && !redisUrl.includes('127.0.0.1') && !redisUrl.includes('redis:')) {
+      redisUrl = redisUrl.replace('redis://', 'rediss://');
+      logger.info('Enforced secure TLS (rediss://) connection configuration for external Redis host.');
+    }
     
     try {
       const mainClient = new Redis(redisUrl, {
