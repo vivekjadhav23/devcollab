@@ -1,4 +1,5 @@
 import Queue from 'bull';
+import Redis from 'ioredis';
 import axios from 'axios';
 import { exec } from 'child_process';
 import fs from 'fs';
@@ -220,8 +221,24 @@ export const initExecutionQueue = (io) => {
   }
 
   try {
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-    executionQueue = new Queue('code-execution-queue', redisUrl);
+    let redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    if (redisUrl.startsWith('redis://') && !redisUrl.includes('localhost') && !redisUrl.includes('127.0.0.1') && !redisUrl.includes('redis:')) {
+      redisUrl = redisUrl.replace('redis://', 'rediss://');
+    }
+
+    const clientOpts = {
+      maxRetriesPerRequest: null,
+    };
+    if (redisUrl.startsWith('rediss://')) {
+      clientOpts.tls = { rejectUnauthorized: false };
+    }
+
+    // Initialize Bull Queue backed by Redis connection with custom ioredis clients for TLS support
+    executionQueue = new Queue('code-execution-queue', {
+      createClient: () => {
+        return new Redis(redisUrl, clientOpts);
+      }
+    });
 
     executionQueue.process(processExecutionJob);
 

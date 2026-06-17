@@ -1,4 +1,5 @@
 import Queue from 'bull';
+import Redis from 'ioredis';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getPubSubClients } from '../config/redis.js';
 import logger from '../utils/logger.js';
@@ -122,9 +123,24 @@ export const initAIReviewQueue = (io) => {
   }
 
   try {
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-    // Initialize Bull Queue backed by Redis connection
-    aiReviewQueue = new Queue('ai-review-queue', redisUrl);
+    let redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    if (redisUrl.startsWith('redis://') && !redisUrl.includes('localhost') && !redisUrl.includes('127.0.0.1') && !redisUrl.includes('redis:')) {
+      redisUrl = redisUrl.replace('redis://', 'rediss://');
+    }
+
+    const clientOpts = {
+      maxRetriesPerRequest: null,
+    };
+    if (redisUrl.startsWith('rediss://')) {
+      clientOpts.tls = { rejectUnauthorized: false };
+    }
+
+    // Initialize Bull Queue backed by Redis connection with custom ioredis clients for TLS support
+    aiReviewQueue = new Queue('ai-review-queue', {
+      createClient: () => {
+        return new Redis(redisUrl, clientOpts);
+      }
+    });
 
     // Register job processor
     aiReviewQueue.process(processAIReviewJob);
